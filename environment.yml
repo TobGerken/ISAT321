@@ -1,6 +1,6 @@
 dependencies:
   - python
-  - numpy
+  - numpy=1.12.0
   - matplotlib
   - random
   - scipy.stats 
