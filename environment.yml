@@ -1,6 +1,8 @@
+channels:
+  - conda-forge
 dependencies:
   - python
-  - numpy=1.12.0
+  - numpy
   - matplotlib
   - random
   - scipy.stats 
