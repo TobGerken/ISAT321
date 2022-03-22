@@ -119,9 +119,9 @@ def calc_GaussianPlume(Q,H,u,stability,Param):
 
 
 def init_GaussianPlume():
-    x = np.linspace(0, 40, 400)+.001
-    y = np.linspace(-20, 20, 400)+.001
-    z = np.linspace(0, 1000, 400)+.001
+    x = np.linspace(0, 40, 200)+.001
+    y = np.linspace(-20, 20, 200)+.001
+    z = np.linspace(0, 1000, 200)+.001
     Iy = {'A':0.5, 'B':0.3, 'C': 0.25, 'D': 0.15, 'E': 0.1, 'F':0.08}
     Iz = {'A':0.3, 'B':0.12, 'C': 0.1, 'C': 0.07, 'E': 0.05, 'F':0.03}
 
