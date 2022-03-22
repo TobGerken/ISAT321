@@ -31,7 +31,7 @@ def calculate_trajectories(start_y,start_z,u,v_sigma,w_sigma,n_walks):
     return (x_coords,y_coords,z_coords)
 
 
-def plot_trajectory(x_coords,y_coords,z_coords,n_trajectories,n_walks):
+def plot_trajectory(x_coords,y_coords,z_coords,n_trajectories,n_walks, plot_histogram=False):
     
     fig, (ax1, ax2) = plt.subplots(2, 1)
     fig.set_size_inches(10, 8)
@@ -61,47 +61,48 @@ def plot_trajectory(x_coords,y_coords,z_coords,n_trajectories,n_walks):
     ax2.vlines(x_coords[1,250],  ymin, ymax ,linestyles='dashed')
     ax2.vlines(x_coords[1,900],  ymin, ymax ,color='r',linestyles='dashed')
     
-    fig, ax3 = plt.subplots(2, 1)
-    fig.set_size_inches(10, 8)
-    fig.suptitle('Distribution at Crosscuts')
-    
-    x=250
-    ax3[0].set_title('Z-Direction')
-    ax3[0].hist(z_coords[arr[0:n_trajectories],x],50,density=True, alpha = 0.5)
-    mu, std = norm.fit(z_coords[:,x])
-    x = np.linspace(zmin, zmax, 100)
-    p = norm.pdf(x, mu, std)
-    ax3[0].hlines(norm.pdf(mu+std, mu, std),  mu-std, mu+std ,color='k') 
-    ax3[0].plot(x, p, 'b', linewidth=2)
-    
-    x=900
-    ax3[0].hist(z_coords[arr[0:n_trajectories],x],50,density=True,color='r', alpha = 0.5)
-    mu, std = norm.fit(z_coords[arr[0:n_trajectories],x])
-    x = np.linspace(zmin, zmax, 100)
-    p = norm.pdf(x, mu, std)
-    ax3[0].hlines(norm.pdf(mu+std, mu, std),  mu-std, mu+std ,color='k')  
-    ax3[0].text(mu, norm.pdf(mu+std, mu*1.02, std),  r'$2 \sigma$' ,color='k', 
-                verticalalignment='baseline', horizontalalignment='center', fontsize = 12 )  
-    ax3[0].plot(x, p, 'r', linewidth=2)
-    
-    x=250
-    ax3[1].set_title('Y-Direction')
-    ax3[1].hist(y_coords[arr[0:n_trajectories],x],50,density=True, alpha = 0.5)
-    mu, std = norm.fit(y_coords[arr[0:n_trajectories],x])
-    x = np.linspace(ymin, ymax, 100)
-    p = norm.pdf(x, mu, std)
-    ax3[1].plot(x, p, 'b', linewidth=2)
-    xmin, xmax = ax3[1].get_xlim()
-    #ax3[1].text(xmin,ymax,'Y-coordinate')
-    
-    
-    x=900
-    ax3[1].hist(y_coords[arr[0:n_trajectories],x],50,density=True,color='r', alpha = 0.5)
-    mu, std = norm.fit(y_coords[arr[0:n_trajectories],x])
-    x = np.linspace(ymin, ymax, 100)
-    p = norm.pdf(x, mu, std)
-    ax3[1].plot(x, p, 'r', linewidth=2)
-    ax3[1].legend(['Normal Dist 1','Normal Dist 2','Histogram 1', 'Histogram 2'])
+    if plot_histogram:
+        fig, ax3 = plt.subplots(2, 1)
+        fig.set_size_inches(10, 8)
+        fig.suptitle('Distribution at Crosscuts')
+        
+        x=250
+        ax3[0].set_title('Z-Direction')
+        ax3[0].hist(z_coords[arr[0:n_trajectories],x],50,density=True, alpha = 0.5)
+        mu, std = norm.fit(z_coords[:,x])
+        x = np.linspace(zmin, zmax, 100)
+        p = norm.pdf(x, mu, std)
+        ax3[0].hlines(norm.pdf(mu+std, mu, std),  mu-std, mu+std ,color='k') 
+        ax3[0].plot(x, p, 'b', linewidth=2)
+        
+        x=900
+        ax3[0].hist(z_coords[arr[0:n_trajectories],x],50,density=True,color='r', alpha = 0.5)
+        mu, std = norm.fit(z_coords[arr[0:n_trajectories],x])
+        x = np.linspace(zmin, zmax, 100)
+        p = norm.pdf(x, mu, std)
+        ax3[0].hlines(norm.pdf(mu+std, mu, std),  mu-std, mu+std ,color='k')  
+        ax3[0].text(mu, norm.pdf(mu+std, mu*1.02, std),  r'$2 \sigma$' ,color='k', 
+                    verticalalignment='baseline', horizontalalignment='center', fontsize = 12 )  
+        ax3[0].plot(x, p, 'r', linewidth=2)
+        
+        x=250
+        ax3[1].set_title('Y-Direction')
+        ax3[1].hist(y_coords[arr[0:n_trajectories],x],50,density=True, alpha = 0.5)
+        mu, std = norm.fit(y_coords[arr[0:n_trajectories],x])
+        x = np.linspace(ymin, ymax, 100)
+        p = norm.pdf(x, mu, std)
+        ax3[1].plot(x, p, 'b', linewidth=2)
+        xmin, xmax = ax3[1].get_xlim()
+        #ax3[1].text(xmin,ymax,'Y-coordinate')
+        
+        
+        x=900
+        ax3[1].hist(y_coords[arr[0:n_trajectories],x],50,density=True,color='r', alpha = 0.5)
+        mu, std = norm.fit(y_coords[arr[0:n_trajectories],x])
+        x = np.linspace(ymin, ymax, 100)
+        p = norm.pdf(x, mu, std)
+        ax3[1].plot(x, p, 'r', linewidth=2)
+        ax3[1].legend(['Normal Dist 1','Normal Dist 2','Histogram 1', 'Histogram 2'])
 
 
 def calc_GaussianPlume(Q,H,u,stability,Param):
@@ -188,8 +189,8 @@ def plot_GaussianPlume(C, XCut, YCut, ZCut, Param):
     cf2=ax.contour(y,z,np.squeeze(C[:,ix0,:]*1000).T)
     fig.colorbar(cf2, ax=ax, label = 'ug/m3')
     ax.clabel(cf2, inline=True, fontsize=8)
-    ax.set_xlim((-3, 3))
-    ax.set_ylim((0, 500))
+    ax.set_xlim((-5, 5))
+    ax.set_ylim((0, 1000))
     ax.set_ylabel('Height (m)')
     ax.set_xlabel('Y-Direction (km)')
     ax.set_title('Concentrations for Crosscut at X = %d km' % (XCut))
@@ -201,7 +202,7 @@ def plot_GaussianPlume(C, XCut, YCut, ZCut, Param):
     fig.colorbar(cf2, ax=ax, label = 'ug/m3')
     ax.clabel(cf2, inline=True, fontsize=8)
     ax.set_xlim((0, 40))
-    ax.set_ylim((0, 500))
+    ax.set_ylim((0, 1000))
     ax.set_ylabel('Height (m)')
     ax.set_xlabel('X-Direction (km)')
     ax.set_title('Concentrations for Crosscut at Y = %d km' % (YCut))
