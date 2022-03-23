@@ -187,7 +187,7 @@ def plot_GaussianPlume(C, XCut, YCut, ZCut, Param):
 
     ax.plot(x,np.squeeze(C[iy0,:,0]*1000))
     ax.set_xlim((0, 40))
-    ax.set_ylim((0, 1))
+    ax.set_ylim((0, 2))
     ax.set_title('Centerline Ground Concentration')
     ax.set_ylabel('ug/m3')
 
