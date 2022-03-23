@@ -123,7 +123,7 @@ def init_GaussianPlume():
     y = np.linspace(-20, 20, 200)+.001
     z = np.linspace(0, 1000, 200)+.001
     Iy = {'A':0.5, 'B':0.3, 'C': 0.25, 'D': 0.15, 'E': 0.1, 'F':0.08}
-    Iz = {'A':0.3, 'B':0.12, 'C': 0.1, 'C': 0.07, 'E': 0.05, 'F':0.03}
+    Iz = {'A':0.3, 'B':0.12, 'C': 0.1, 'D': 0.07, 'E': 0.05, 'F':0.03}
 
     xv, yv, zv = np.meshgrid(x, y, z)
     
@@ -134,6 +134,29 @@ def init_GaussianPlume():
 def plot_GaussianPlume(C, XCut, YCut, ZCut, Param):
     x,y,z,xv, yv, zv, Iy, Iz = Param
     
+
+    #
+    if (XCut > 40):
+        XCut =40
+        print('Location of X crossection set to maximum value (40 km)')
+    elif (XCut < 0):
+        XCut =0.1
+        print('Location of X crossection set to minimum value (0.1 km)')
+
+    if (YCut > 20):
+        YCut =20
+        print('Location of Y crossection set to maximum value (20 km)')
+    elif (YCut <= -20):
+        YCut =-19.9
+        print('Location of Y crossection set to minimum value (-19.9 km)')
+
+    if (ZCut >= 1000):
+        ZCut =999
+        print('Location of Z crossection set to maximum value (999 m)')
+    elif (ZCut <= 0):
+        ZCut =1
+        print('Location of Z crossection set to minimum value (1 m)')
+
     # translate X,Y,Z to nearest index values 
     X = np.abs(x-XCut)
     ix0 =  np.where( X == X.min() )
@@ -148,8 +171,8 @@ def plot_GaussianPlume(C, XCut, YCut, ZCut, Param):
     fig, ax = plt.subplots(1, 1)
     fig.set_size_inches(10, 8)
 
-    cf=ax.contourf(x,y,C[:,:,0]*1000)
-    cf2=ax.contour(x,y,C[:,:,0]*1000,colors = 'w')
+    cf=ax.contourf(x,y,C[:,:,0]*1000,[0.01,0.05,0.1,0.2,0.3,0.4,0.5,0.6,1,2])
+    cf2=ax.contour(x,y,C[:,:,0]*1000,[0.01,0.05,0.1,0.2,0.3,0.4,0.5,0.6,1,2],colors = 'w')
     ax.clabel(cf2, inline=True, fontsize=8)
     ax.set_ylim((-3,3))
     ax.set_xlim((0, 20))
@@ -164,6 +187,7 @@ def plot_GaussianPlume(C, XCut, YCut, ZCut, Param):
 
     ax.plot(x,np.squeeze(C[iy0,:,0]*1000))
     ax.set_xlim((0, 40))
+    ax.set_ylim((0, 1))
     ax.set_title('Centerline Ground Concentration')
     ax.set_ylabel('ug/m3')
 
@@ -171,9 +195,16 @@ def plot_GaussianPlume(C, XCut, YCut, ZCut, Param):
     fig3, ax = plt.subplots(1, 1)
     fig3.set_size_inches(10, 8)
 
-    cf2=ax.contour(x,y,np.squeeze(C[:,:,iz0]*1000),[0.05,0.1,0.5,1,5,10,20,50,100],colors='k')
-    ax.clabel(cf2, inline=True, fontsize=8)
-    fig.colorbar(cf2, ax=ax, label = 'ug/m3')
+    vals = np.squeeze(C[:,:,iz0]*1000)
+    #print((np.nanmax(C[:,:,iz0]*1000) < 0.01) | np.all(np.isnan(C[:,:,iz0]))
+    #print(np.nanmax(C[:,:,iz0]*1000))
+    if (np.nanmax(vals) >0.01):
+        cf2=ax.contour(x,y,vals,[0.01, 0.05,0.1,0.5,1,5,10,20,50,100],colors='k')
+        ax.clabel(cf2, inline=True, fontsize=8)
+        fig.colorbar(cf2, ax=ax, label = 'ug/m3')
+    else:   
+        print('Maximum Concentration in plot <0.01 ug/m3')
+        ax.text(1,4,'Maximum Concentration <0.01 ug/m3',fontsize = 14)
 
     ax.set_xlim((0, 25))
     ax.set_ylim((-5, 5))
@@ -185,10 +216,19 @@ def plot_GaussianPlume(C, XCut, YCut, ZCut, Param):
     
     fig4, ax = plt.subplots(1, 1)
     fig4.set_size_inches(10, 8)
-    #cf3=ax.contourf(y,z,np.squeeze(C[:,ix0,:]*1000).T)
-    cf2=ax.contour(y,z,np.squeeze(C[:,ix0,:]*1000).T)
-    fig.colorbar(cf2, ax=ax, label = 'ug/m3')
-    ax.clabel(cf2, inline=True, fontsize=8)
+
+    vals = np.squeeze(C[:,ix0,:]*1000)
+    #print(vals.max())
+    #print(np.isnan(vals))
+    if (np.nanmax(vals) >0.01):
+        cf2=ax.contour(y,z,vals.T)
+        fig.colorbar(cf2, ax=ax, label = 'ug/m3')
+        ax.clabel(cf2, inline=True, fontsize=8)
+    else:
+        print('Maximum Concentration in plot <0.01 ug/m3')
+        ax.text(-4.7,200,'Maximum Concentration in plot <0.01 ug/m3',fontsize = 14)
+
+
     ax.set_xlim((-5, 5))
     ax.set_ylim((0, 1000))
     ax.set_ylabel('Height (m)')
@@ -198,9 +238,16 @@ def plot_GaussianPlume(C, XCut, YCut, ZCut, Param):
     # Simple contourplot with X-Z cut
     fig5, ax = plt.subplots(1, 1)
     fig5.set_size_inches(10, 8)
-    cf2=ax.contour(x,z,np.squeeze(C[iy0,:,:].T*1000),[0.05,0.1,0.5,1,5,10,20,50,100])
-    fig.colorbar(cf2, ax=ax, label = 'ug/m3')
-    ax.clabel(cf2, inline=True, fontsize=8)
+
+    vals = np.squeeze(C[iy0,:,:]*1000)
+
+    if (np.nanmax(vals) >0.01):
+        cf2=ax.contour(x,z,np.squeeze(C[iy0,:,:].T*1000),[0.01,0.05,0.1,0.5,1,5,10,20,50,100])
+        fig.colorbar(cf2, ax=ax, label = 'ug/m3')
+        ax.clabel(cf2, inline=True, fontsize=8)
+    else:
+        print('Maximum Concentration in plot <0.01 ug/m3')
+        ax.text(0,800,'Maximum Concentration in plot <0.01 ug/m3',fontsize = 14)    
     ax.set_xlim((0, 25))
     ax.set_ylim((0, 1000))
     ax.set_ylabel('Height (m)')
